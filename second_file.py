@@ -47,7 +47,11 @@ class GUI:
         self.text_frame_for_formula = tk.Entry(self.common_frame, width=52)
         self.text_frame_for_formula.grid(column=1, row=0, columnspan=7, sticky=tk.E)
         # добивить текст(или не здесь)
-
+        self.frame_for_history = tk.Text(
+        self.common_frame, height=12, width=52)
+        self.frame_for_history.grid(column=1, row=3, rowspan=7, columnspan=7, sticky=tk.E)
+    
+    def frames_for_convert(self):
         self.first_frame_for_convert = tk.Text(self.common_frame, height=1, width=8)
         self.first_frame_for_convert.grid(column=2, row=1, sticky=tk.W)
         
@@ -56,11 +60,6 @@ class GUI:
         
         self.third_frame_for_convert = tk.Text(self.common_frame, height=1, width=8)
         self.third_frame_for_convert.grid(column=6, row=1, sticky=tk.E)
-
-
-        self.frame_for_history = tk.Text(
-            self.common_frame, height=12, width=52)
-        self.frame_for_history.grid(column=1, row=3, rowspan=7, columnspan=7, sticky=tk.E)
 
     def texts_for_convert(self, text1, text2, text3=None):
         if text3 is None:
@@ -134,6 +133,7 @@ class Calculator:
                 self.add_history_item(
                     button_type, self.compound.formula, self.compound.molar_mass())
             if button_type in self.gui.OPERATIONS:
+                self.gui.frames_for_convert()
                 if button_type == 'g/L to mol/L':
                     self.gui.texts_for_convert('g /', 'L', 'mol/l')
                 if button_type == 'mol/L to g/L':
