@@ -4,8 +4,8 @@ from chemlib import Compound
 
 
 class GUI:
-    def __init__(self, pressing):
-        self.pressing = pressing
+    def __init__(self, on_click_builder):
+        self.on_click_builder = on_click_builder
 
         self.background_color = 'white'
         self.operations = {
@@ -88,17 +88,17 @@ class GUI:
             self.second_frame_for_convert.delete(1.0, tk.END)
 
     def create_buttons(self):
-        self.molar_mass_button = tk.Button(self.common_frame, command=self.pressing('molar mass'),
+        self.molar_mass_button = tk.Button(self.common_frame, command=self.on_click_builder('molar mass'),
                                            text='Calculate molar mass', height=1, width=15)
         self.molar_mass_button.grid(column=0, row=0, sticky=tk.W)
         row_index = 2
         for operation in self.operations:
             row_index = row_index + 1
             self.buttons = tk.Button(self.common_frame, text=operation,
-                                     command=self.pressing(operation), height=1, width=15)
+                                     command=self.on_click_builder(operation), height=1, width=15)
             self.buttons.grid(column=0, row=row_index, sticky=tk.W)
         self.convert_button = tk.Button(self.common_frame, text='Convert',
-                                        command=self.pressing('Convert'), height=1, width=10)
+                                        command=self.on_click_builder('Convert'), height=1, width=10)
         self.convert_button.grid(column=6, row=2, columnspan=2, sticky=tk.E)
 
     def update_history(self, result):
@@ -114,17 +114,17 @@ class Calculator:
     def __init__(self):
         self.last_operation = ''
         self.history = []
-        self.gui = GUI(self.pressing)
+        self.gui = GUI(self.on_click_builder)
 
     def add_history_item(self, action, formula, output, input=None):
-        item = {'action': action, 'formula': formula,
-                'input': input, 'output': output}
+        item = {'action': action, 'formula': formula, 'input': input, 'output': output}
         self.history.append(item)
         formated_history = []
         for elem in self.history:
             if elem['input'] is None:
-                formated_history.append(
-                    elem['formula'] + ': ' + '\n' + elem['action'] + ': ' + str(elem['output']))
+                h = f"{elem['formula']}:\n"
+                h += f"{elem['action']}: {elem['output']}"
+                formated_history.append(h)
             else:
                 formatting = self.gui.operations[self.last_operation]
 
@@ -149,23 +149,21 @@ class Calculator:
         self.molar_massa = self.compound.molar_mass()
         return self.molar_massa
 
-    def pressing(self, button_type: str):
-        def press_button():
+    def on_click_builder(self, button_type: str):
+        def on_click():
             if button_type == 'molar mass':
                 self.on_molar_mass_click()
             if button_type in self.gui.operations:
                 self.on_operations_click(button_type)
             if button_type == 'Convert':
                 self.on_convert_click()
-            print(self.history)
-        return press_button
+        return on_click
 
     def on_molar_mass_click(self):
         if self.gui.replace_formula_entry_text('You forgot to enter the fomula'):
             return
 
         self.molar_mass()
-        print(self.compound, '\n', self.compound.molar_mass())
         self.add_history_item('molar mass', self.compound.formula, round(
             self.compound.molar_mass(), 3))
 
