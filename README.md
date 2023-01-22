@@ -1,17 +1,20 @@
 # GUI chemical calculator
 
+Usefull chemical calculator which I use in my work every day.
+Application has been tested on my colleagues ⚛️
+### Features:
+- Compound's molar mass calculation
+- convertion g/L to mol/L
+- convertion mol/L to g/L 
+- convertion g to mmol
+- convertion mmol to g
+- convertion g/mol to M in solution
+
 ### Example of calculation molar mass of chemical compound
 ![image](https://drive.google.com/uc?export=view&id=14rhOeACKQ7shUwpGjk7LvJO6HnLTdZEj)
 
 ### Example of convertion g/L to mol/L
 ![image](https://drive.google.com/uc?export=view&id=1EVVJdTZbdaKl6_GGdsxsPeqAc8b5cDs0)
-
-#### Possible convertions:
-- g/L to mol/L
-- mol/L to g/L 
-- g to mmol
-- mmol to g
-- g/mol to M in solution
 
 ### How to run
 Install requirements.txt
