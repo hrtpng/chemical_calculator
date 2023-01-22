@@ -11,10 +11,10 @@ Application has been tested on my colleagues ⚛️
 - convertion g/mol to M in solution
 
 ### Example of calculation molar mass of chemical compound
-![image](https://drive.google.com/uc?export=view&id=14rhOeACKQ7shUwpGjk7LvJO6HnLTdZEj)
+![image](https://drive.google.com/uc?export=view&id=1zETmfqRfOZCMjOBi8A8zpoBBa0YkHTv9)
 
 ### Example of convertion g/L to mol/L
-![image](https://drive.google.com/uc?export=view&id=1EVVJdTZbdaKl6_GGdsxsPeqAc8b5cDs0)
+![image](https://drive.google.com/uc?export=view&id=1YUW1CZhu2R7h7YE_XHnaYY1nSxbBqfXL)
 
 ### How to run
 Install requirements.txt
