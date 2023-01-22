@@ -2,7 +2,6 @@ import tkinter as tk
 
 from chemlib import Compound
 
-
 class GUI:
     def __init__(self, on_click_builder):
         self.on_click_builder = on_click_builder
@@ -24,29 +23,38 @@ class GUI:
 
     def create_frames(self):
         self.window = tk.Tk()
-        self.window.geometry('628x355')
+        self.window.geometry('640x355')
+        self.window.resizable(False, False)
         self.window.title('Chemistry calculator')
         self.window.configure(background=self.background_color)
-        self.welcome_frame = tk.Label(
-            self.window, text='Welcome to chemistry calculator')
-        self.welcome_frame.pack(expand=True, fill='both')
+        self.welcome_label = tk.Label(self.window, text='Welcome to chemistry calculator')
+        self.welcome_label.pack(expand=True, fill='both')
         self.common_frame = tk.Frame(self.window)
         self.common_frame.pack(expand=True, fill='both')
 
-        self.text_frame_convert = tk.Label(self.common_frame, text='Convert: ',
-                                           height=2, width=25)
-        self.text_frame_convert.grid(column=0, row=2, sticky=tk.W)
+        self.convertion_options_label = tk.Label(self.common_frame, text='Convertion options:', height=2)
+        self.convertion_options_label.grid(column=0, row=2, padx=(0, 65))
 
         self.formula_entry = tk.Entry(self.common_frame, width=52)
         self.formula_entry.grid(column=1, row=0, columnspan=7, sticky=tk.E)
 
         def clear_formula_frame(event):
             self.replace_formula_entry_text()
+
         self.formula_entry.bind('<Button-1>', clear_formula_frame)
+        
         self.frame_for_history = tk.Text(
-            self.common_frame, height=12, width=52)
+            self.common_frame, height=10, width=52)
         self.frame_for_history.grid(
-            column=1, row=3, rowspan=7, columnspan=7, sticky=tk.E)
+            column=1, row=3, rowspan=5, columnspan=7, sticky=tk.E)
+        scrollbar = tk.Scrollbar(self.common_frame, orient='vertical',
+            command=self.frame_for_history.yview)
+        scrollbar.grid(row=3, column=8, rowspan=5, sticky=tk.NS)
+        self.frame_for_history['yscrollcommand'] = scrollbar.set
+        self.set_scrollbar_end()
+
+    def set_scrollbar_end(self):
+        self.frame_for_history.see('end')
 
     def replace_formula_entry_text(self, text: str = None):
         remove_formula_on = [
@@ -65,26 +73,32 @@ class GUI:
 
         self.first_frame_for_convert = tk.Text(
             self.common_frame, height=1, width=8)
-        self.first_frame_for_convert.grid(column=2, row=1, sticky=tk.W)
+        self.first_frame_for_convert.grid(column=3, row=1, sticky=tk.W)
         if text2:
             self.second_frame_for_convert = tk.Text(
                 self.common_frame, height=1, width=8)
-            self.second_frame_for_convert.grid(column=4, row=1)
+            self.second_frame_for_convert.grid(column=5, row=1)
         self.first_text_for_convert = tk.Label(
             self.common_frame, text=text1, height=1, width=8)
-        self.first_text_for_convert.grid(column=3, row=1, sticky=tk.W)
+        self.first_text_for_convert.grid(column=4, row=1, sticky=tk.W)
 
         self.second_text_for_convert = tk.Label(
             self.common_frame, text=text2, height=1, width=8)
-        self.second_text_for_convert.grid(column=5, row=1, sticky=tk.W)
+        self.second_text_for_convert.grid(column=6, row=1, sticky=tk.W)
 
-        self.text_frame_enter = tk.Label(
-            self.common_frame, text='Enter: ', height=2, width=25)
-        self.text_frame_enter.grid(column=0, row=1, sticky=tk.W)
+        self.enter_label = tk.Label(self.common_frame, text='Enter: ', height=2)
+        self.enter_label.grid(column=1, row=1, sticky=tk.W)
 
-    def clear_input(self):
+    def clear_inputs(self):
+        self.clear_first_input()
+        self.clear_second_input()
+
+    def clear_first_input(self):
         if self.first_frame_for_convert:
             self.first_frame_for_convert.delete(1.0, tk.END)
+
+    def clear_second_input(self):
+        if self.second_frame_for_convert:
             self.second_frame_for_convert.delete(1.0, tk.END)
 
     def create_buttons(self):
@@ -114,6 +128,7 @@ class Calculator:
     def __init__(self):
         self.last_operation = ''
         self.history = []
+        self.molar_massa = 0
         self.gui = GUI(self.on_click_builder)
 
     def add_history_item(self, action, formula, output, input=None):
@@ -145,9 +160,12 @@ class Calculator:
         self.gui.update_history(formated_history[::-1])
 
     def molar_mass(self):
-        self.compound = Compound(self.gui.formula_entry.get())
-        self.molar_massa = self.compound.molar_mass()
-        return self.molar_massa
+        try:
+            self.compound = Compound(self.gui.formula_entry.get())
+            self.molar_massa = self.compound.molar_mass()
+            return self.molar_massa
+        except:
+            return None
 
     def on_click_builder(self, button_type: str):
         def on_click():
@@ -163,7 +181,9 @@ class Calculator:
         if self.gui.replace_formula_entry_text('You forgot to enter the fomula'):
             return
 
-        self.molar_mass()
+        res = self.molar_mass()
+        if res is None:
+            return
         self.add_history_item('molar mass', self.compound.formula, round(
             self.compound.molar_mass(), 3))
 
@@ -176,15 +196,20 @@ class Calculator:
     def on_convert_click(self):
         if self.gui.replace_formula_entry_text('You forgot to enter the fomula'):
             return
-        if self.gui.first_frame_for_convert.get('1.0', 'end') == '\n':
+        if self.gui.first_frame_for_convert.get('1.0', 'end') == '\n' or  not self.is_number(self.gui.first_frame_for_convert.get('1.0', 'end')):
+            self.gui.clear_first_input()
             self.gui.first_frame_for_convert.insert(tk.END, 'Error')
             return
 
-        massa = float(self.molar_mass())
+        res = self.molar_mass()
+        if res is None:
+            return
+        massa = float(self.molar_massa)
         first_entry_value = float(
             self.gui.first_frame_for_convert.get('1.0', 'end'))
         if self.last_operation == 'g/L to mol/L':
-            if self.gui.second_frame_for_convert.get('1.0', 'end') == '\n':
+            if self.gui.second_frame_for_convert.get('1.0', 'end') == '\n' or  not self.is_number(self.gui.second_frame_for_convert.get('1.0', 'end')):
+                self.gui.clear_second_input()
                 self.gui.second_frame_for_convert.insert(tk.END, 'Error')
                 return
             litr = float(self.gui.second_frame_for_convert.get('1.0', 'end'))
@@ -205,8 +230,14 @@ class Calculator:
         self.add_history_item(
             self.last_operation, self.compound.formula, round(self.compound.molar_mass(), 3), round(result, 3))
 
-        self.gui.clear_input()
+        self.gui.clear_inputs()
 
+    def is_number(self, s):
+        try:
+            float(s)
+            return True
+        except ValueError:
+            return False
 
 calc = Calculator()
 calc.gui.show()
